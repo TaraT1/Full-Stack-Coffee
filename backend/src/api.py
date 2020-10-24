@@ -105,6 +105,6 @@ def unprocessable(error):
 
 
 '''
-@TODO implement error handler for AuthError
+@TODO implement error handler for AuthError (401)
     error handler should conform to general task above 
 '''

@@ -4,7 +4,6 @@ from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
 
-
 #AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
 AUTH0_DOMAIN = 'fs-tt.us.auth0.com'
 ALGORITHMS = ['RS256']
@@ -23,7 +22,7 @@ class AuthError(Exception):
 
 ## Auth Header
 
-'''
+'''c.f. Udac 2.13, 15
 @TODO implement get_token_auth_header() method
     it should attempt to get the header from the request
         it should raise an AuthError if no header is present
@@ -32,7 +31,23 @@ class AuthError(Exception):
     return the token part of the header
 '''
 def get_token_auth_header():
-   raise Exception('Not Implemented')
+    #check for authn
+    if 'Authorization' not in request.headers:
+        abort(401)
+    
+    #validate authn format
+    auth_header = request.headers['Authorization']
+    header_parts = auth_header.split(' ')[1]
+
+    if len(header_parts) != 2:
+        abort(401)
+
+    if header_parts[0].lower() != 'bearer':
+        abort(401)
+
+    return header_parts[1]
+
+
 
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -85,3 +100,5 @@ def requires_auth(permission=''):
 
         return wrapper
     return requires_auth_decorator
+
+#app setup for testing
