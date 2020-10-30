@@ -31,12 +31,15 @@ class AuthError(Exception):
     return the token part of the header
 '''
 def get_token_auth_header():
+    #get auth header
+    auth = request.headers.get('Authorization', None)
+
     #check for authn
-    if 'Authorization' not in request.headers:
+    if not auth:
         abort(401)
     
     #validate authn format
-    auth_header = request.headers['Authorization']
+    auth_header = request.headers['Authorization'] #?use auth
     header_parts = auth_header.split(' ')[1]
 
     if len(header_parts) != 2:
@@ -45,8 +48,8 @@ def get_token_auth_header():
     if header_parts[0].lower() != 'bearer':
         abort(401)
 
-    return header_parts[1]
-
+    token = header_parts[1]
+    return token
 
 
 '''
@@ -61,7 +64,12 @@ def get_token_auth_header():
     return true otherwise
 '''
 def check_permissions(permission, payload):
+    #permission
+    ##if not permission in payload:
+        #abort(401)
+    
     raise Exception('Not Implemented')
+
 
 '''
 @TODO implement verify_decode_jwt(token) method
@@ -77,7 +85,60 @@ def check_permissions(permission, payload):
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 def verify_decode_jwt(token):
-    raise Exception('Not Implemented')
+    #get jwt from Auth0
+    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+    jwks = json.loads(jsonurl.read())
+    
+    #get data in header
+    unverified_header = jwt.get_unverified_header(token)
+
+    #choose key
+    rsa_key = {}
+    if 'kid' not in unverified_header:
+        raise AuthError({
+    'code': 'invalid_header',
+    'description': 'Authorization malformed.'
+    }, 401)
+
+    for key in jwks['keys']:
+        if key['kid'] == unverified_header['kid']:
+            rsa_key = {
+                'kty': key['kty'],
+                'kid': key['kid'],
+                'use': key['use'],
+                'n': key['n'],
+                'e': key['e']
+            }
+
+    #verify
+    if rsa_key:
+        try: 
+            #use key to validate jwt
+            payload = jwt.decode(
+                token,
+                rsa_key,
+                algorithms = ALGORITHMS,
+                audience = API_AUDIENCE,
+                issuer='https://' + AUTH0_DOMAIN + '/'
+            )
+
+            return payload
+
+        except jwt.ExpiredSignatureError:
+            raise AuthError({
+                'code': 'token_expired',
+                'description': 'Token expired.'
+            }, 401)
+
+        except jwt.JWTClaimsError:
+            raise AuthError({
+        'code': 'invalid_claims',
+        'description': 'Unable to parse authentication token.'
+        }, 400)
+    raise AuthError({
+        'code': 'invalid_header',
+        'description': 'Unable to find the appropriate key.'
+        }, 400)
 
 '''
 @TODO implement @requires_auth(permission) decorator method
@@ -94,11 +155,22 @@ def requires_auth(permission=''):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
-            payload = verify_decode_jwt(token)
+            try:
+                payload = verify_decode_jwt(token)
+            except:
+                abort(401)
+
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
 
         return wrapper
     return requires_auth_decorator
 
+'''
 #app setup for testing
+@app.route('/headers')
+@requires_auth
+def header(payload):
+    print(payload)
+    return 'Access Granted'
+'''
