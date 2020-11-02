@@ -63,12 +63,21 @@ def get_token_auth_header():
     it should raise an AuthError if the requested permission string is not in the payload permissions array
     return true otherwise
 '''
-def check_permissions(permission, payload):
+def check_permissions(permission, payload):#Udac Access & Authn 4.4
     #permission
-    ##if not permission in payload:
-        #abort(401)
-    
-    raise Exception('Not Implemented')
+    if 'permissions' not in payload:
+        raise AuthError({
+            'code': 'invalid_claims', 
+            'description': 'Permissions not included in JWT.'
+    }, 400)
+
+    if permission not in payload['permissions']:
+        raise AuthError({
+            'code': 'unauthorized',
+            'description': 'Permission not found.'
+        }, 403)
+
+    return True
 
 
 '''
@@ -165,12 +174,3 @@ def requires_auth(permission=''):
 
         return wrapper
     return requires_auth_decorator
-
-'''
-#app setup for testing
-@app.route('/headers')
-@requires_auth
-def header(payload):
-    print(payload)
-    return 'Access Granted'
-'''

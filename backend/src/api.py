@@ -29,19 +29,22 @@ db_drop_and_create_all()
 '''
 @app.route('/drinks', methods=['GET'])
 def get_drinks():
-    #get title, recipe from json 
-    #data=request.get_json()
-    #new_drank=data.get('title')
-    drinks = drink.short()
+    all_drinks = Drink.query.all()
+    drinks = [drink.short() for drink in all_drinks] #formats (not object, but list)
 
-    if len(drinks) == 0:
-        abort(404) #resource not found
+    try:
+        if len(drinks) == 0:
+            abort(404) #resource not found
 
-    return jsonify({
-        "success": True,
-        "drinks": drinks
-    })
+        return jsonify({
+            "success": True,
+                "drinks": drinks
+            }), 200
 
+    except Exception as e:
+        print("Exception is >>', e)
+        print(sys.exc_info())
+        abort(404)
 
 '''
 @TODO implement endpoint
@@ -52,17 +55,24 @@ def get_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks-detail', methods=['GET'])
-def get_drinks-detail():
-    #incorporate special permoission?
-    drinks = drink.long()
+@requires_auth('get:drinks-detail')
+def get_drinks_detail():
+    all_drinks = Drink.query.all()
+    drinks = [drink.long() for drink in all_drinks] #formats (not object, but list)
+    
+    try:
+        if len(drinks) == 0:
+            abort(404) #resource not found
 
-    if len(drinks) == 0:
-        abort(404) #resource not found
+        return jsonfy({
+            "success": True,
+            "drinks": drinks
+        }), 200
 
-    return jsonfy({
-        "success": True,
-        "drinks": drinks
-    })
+    except Exception as e:
+        print("Exception is >>', e)
+        print(sys.exc_info())
+        abort(404)
 
 '''
 @TODO implement endpoint
@@ -73,21 +83,35 @@ def get_drinks-detail():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the newly created drink
         or appropriate status code indicating reason for failure
 '''
-'''@app.route('/drinks', methods=['POST'])
+@app.route('/drinks', methods=['POST'])
+@requires_auth('post:drinks')
 def add_drink():
-    #data=request.get_json()
-    #new_title=data.get('title')
-    #new_recipe=data.get('recipe')
+    data = request.get_json()
+    new_title = data.get('title')
+    new_recipe = data.get('recipe')
 
-    #drink = drink.long()
-    #try: 
-        add_drink.insert()
+    if data is None:
+        abort(404)
 
-    return jsonify({
-        "success": True,
-        "drinks": drink
-    })
-'''
+    try:
+        new_drink = Drink(
+            title = new_title,
+            recipe = new_recipe)
+        new_drink.insert()
+
+        all_drinks = Drink.query.all()
+        drinks = [drink.long() for drink in all_drinks]
+
+        return jsonify({
+            "success": True,
+            "drinks": new_drink #for drink in drinks?
+        }), 200
+
+    except Exception as e:
+        print("Exception is >>", e)
+        print(sys.exc_info())
+        abort(422)
+
 '''
 @TODO implement endpoint
     PATCH /drinks/<id>
@@ -99,7 +123,33 @@ def add_drink():
     returns status code 200 and json {"success": True, "drinks": drink} where drink an array containing only the updated drink
         or appropriate status code indicating reason for failure
 '''
-#@app.route('/drinks/<int:id>', methods=['PATCH'])
+@app.route('/drinks/<int:id>', methods=['PATCH'])
+@requires_auth('patch:drinks')
+def update_drink(id):
+    drink = Drink.query.filter(Drink.id == id).one_or_none()
+
+    if drink is None:
+        abort(404)#resource not found
+    
+    try:
+        data = request.get_json()
+        drink.title = data.get('title')
+        drink.recipe = data.get('recipe')
+        drink.update()
+
+        all_drinks = Drink.query.all()
+        drinks = [drink.long() for drink in all_drinks]
+
+        return jsonify({
+            "success": True,
+            "drinks": drink,
+            "update": id
+        }), 200
+
+    except Exception as e:
+        print("Exception is >>", e)
+        print(sys.exc_info())
+        abort(422)
 
 '''
 @TODO implement endpoint
@@ -112,6 +162,31 @@ def add_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route('drinks/<int:id>', methods=['DELETE'])
+@requires_auth('delete:drinks')
+def delete_drink(id):
+    try:
+        drink = Drink.query.filter(Drink.id == id).one_or_none
+        
+        if drink is None:
+            abort(404) #resource not found
+
+        drink.delete()
+
+        return jsonify({
+            "success": True,
+            "delete": id
+        }), 200
+
+    except Exception as e:
+        print("Exception is >>", e)
+        print(sys.exc_info())
+        abort(422)
+
+
+
+
+
+
 
 ## Error Handling
 '''
@@ -132,7 +207,7 @@ def unprocessable(error):
 '''
 
 @app.errorhandler(404)
-def not_found(error)
+def not_found(error):
     return jsonify({
                     "success": False, 
                     "error": 404,
@@ -144,7 +219,7 @@ def not_found(error)
     error handler should conform to general task above 
 '''
 @app.errorhandler(401)
-def unauthorized(error)
+def unauthorized(error):
     return jsonify({
                     "success": False, 
                     "error": 401,
