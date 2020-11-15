@@ -16,7 +16,7 @@ CORS(app)
 !! NOTE THIS WILL DROP ALL RECORDS AND START YOUR DB FROM SCRATCH
 !! NOTE THIS MUST BE UNCOMMENTED ON FIRST RUN
 '''
-db_drop_and_create_all()
+#db_drop_and_create_all()
 
 ## ROUTES
 '''
@@ -42,8 +42,8 @@ def get_drinks():
             }), 200
 
     except Exception as e:
-        print("Exception is >>', e)
-        print(sys.exc_info())
+        print("Exception is >>", e)
+        #print(sys.exc_info())
         abort(404)
 
 '''
@@ -70,7 +70,7 @@ def get_drinks_detail():
         }), 200
 
     except Exception as e:
-        print("Exception is >>', e)
+        print("Exception is >>", e)
         print(sys.exc_info())
         abort(404)
 
@@ -85,7 +85,7 @@ def get_drinks_detail():
 '''
 @app.route('/drinks', methods=['POST'])
 @requires_auth('post:drinks')
-def add_drink():
+def add_drink(payload):
     data = request.get_json()
     new_title = data.get('title')
     new_recipe = data.get('recipe')
@@ -94,17 +94,17 @@ def add_drink():
         abort(404)
 
     try:
-        new_drink = Drink(
+        newDrink = Drink(
             title = new_title,
-            recipe = new_recipe)
-        new_drink.insert()
+            recipe = json.dumps(new_recipe))
+        newDrink.insert()
 
         all_drinks = Drink.query.all()
         drinks = [drink.long() for drink in all_drinks]
 
         return jsonify({
             "success": True,
-            "drinks": new_drink #for drink in drinks?
+            "drinks": newDrink #for drink in drinks?
         }), 200
 
     except Exception as e:
@@ -161,7 +161,7 @@ def update_drink(id):
     returns status code 200 and json {"success": True, "delete": id} where id is the id of the deleted record
         or appropriate status code indicating reason for failure
 '''
-@app.route('drinks/<int:id>', methods=['DELETE'])
+@app.route('/drinks/<int:id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
 def delete_drink(id):
     try:

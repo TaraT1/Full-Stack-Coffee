@@ -1,5 +1,5 @@
 import json
-from flask import request, _request_ctx_stack
+from flask import request, _request_ctx_stack, abort
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
@@ -7,7 +7,7 @@ from urllib.request import urlopen
 #AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
 AUTH0_DOMAIN = 'fs-tt.us.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'https:/localhost:5000'
+API_AUDIENCE = 'http:/localhost:5000'
 
 ## AuthError Exception
 '''
@@ -51,7 +51,6 @@ def get_token_auth_header():
     token = header_parts[1]
     return token
 
-
 '''
 @TODO implement check_permissions(permission, payload) method
     @INPUTS
@@ -71,7 +70,7 @@ def check_permissions(permission, payload):#Udac Access & Authn 4.4
             'description': 'Permissions not included in JWT.'
     }, 400)
 
-    if permission not in payload['permissions']:
+    if 'permission' not in payload['permissions']:
         raise AuthError({
             'code': 'unauthorized',
             'description': 'Permission not found.'
@@ -105,9 +104,9 @@ def verify_decode_jwt(token):
     rsa_key = {}
     if 'kid' not in unverified_header:
         raise AuthError({
-    'code': 'invalid_header',
-    'description': 'Authorization malformed.'
-    }, 401)
+            'code': 'invalid_header',
+            'description': 'Authorization malformed.'
+        }, 401)
 
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
