@@ -19,7 +19,6 @@ class AuthError(Exception):
         self.error = error
         self.status_code = status_code
 
-
 ## Auth Header
 
 '''c.f. Udac 2.13, 15
@@ -32,23 +31,33 @@ class AuthError(Exception):
 '''
 def get_token_auth_header():
     #get auth header
-    auth = request.headers.get('Authorization', None)
+    auth_header = request.headers.get('Authorization', None)
 
     #check for authn
-    if not auth:
-        abort(401)
+    if not auth_header:
+        raise AuthError({
+        'code': 'missing_authorization_header',
+        'description': 'Expected authorization header'
+        }, 401)
     
     #validate authn format
-    auth_header = request.headers['Authorization'] #?use auth
-    header_parts = auth_header.split(' ')[1]
+    header_parts = auth_header.split(' ')
 
-    if len(header_parts) != 2:
-        abort(401)
+    #if len(header_parts) != 2:
+    if not len(header_parts) == 2:
+        raise AuthError({
+        'code': 'invalid_header',
+        'description': 'Authorization header needs 2 parts'
+        }, 401)
 
     if header_parts[0].lower() != 'bearer':
-        abort(401)
+        raise AuthError({
+        'code': 'invalid_header',
+        'description': 'Authorization header should start with Bearer'
+        }, 401)
 
     token = header_parts[1]
+
     return token
 
 '''
@@ -67,10 +76,10 @@ def check_permissions(permission, payload):#Udac Access & Authn 4.4
     if 'permissions' not in payload:
         raise AuthError({
             'code': 'invalid_claims', 
-            'description': 'Permissions not included in JWT.'
+            'description': 'Permissions are not included in JWT.'
     }, 400)
 
-    if 'permission' not in payload['permissions']:
+    if permission not in payload['permissions']:
         raise AuthError({
             'code': 'unauthorized',
             'description': 'Permission not found.'
