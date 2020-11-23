@@ -94,17 +94,19 @@ def add_drink(payload):
         abort(404)
 
     try:
-        newDrink = Drink(
+        new_drink = Drink(
             title = new_title,
             recipe = json.dumps(new_recipe))
-        newDrink.insert()
+        new_drink.insert()
 
+        '''
         all_drinks = Drink.query.all()
         drinks = [drink.long() for drink in all_drinks]
+        '''
 
         return jsonify({
             "success": True,
-            "drinks": newDrink #for drink in drinks?
+            "drinks": [new_drink.long()] #for drink in drinks?
         }), 200
 
     except Exception as e:
@@ -125,24 +127,26 @@ def add_drink(payload):
 '''
 @app.route('/drinks/<int:id>', methods=['PATCH'])
 @requires_auth('patch:drinks')
-def update_drink(id):
+def update_drink(payload, id):
+    data = request.get_json()
     drink = Drink.query.filter(Drink.id == id).one_or_none()
 
     if drink is None:
         abort(404)#resource not found
     
     try:
-        data = request.get_json()
         drink.title = data.get('title')
         drink.recipe = data.get('recipe')
         drink.update()
 
+        '''
         all_drinks = Drink.query.all()
         drinks = [drink.long() for drink in all_drinks]
+        '''
 
         return jsonify({
             "success": True,
-            "drinks": drink,
+            "drinks": [drink.long()],
             "update": id
         }), 200
 
@@ -163,7 +167,7 @@ def update_drink(id):
 '''
 @app.route('/drinks/<int:id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
-def delete_drink(id):
+def delete_drink(payload, id):
     try:
         drink = Drink.query.filter(Drink.id == id).one_or_none
         
@@ -181,9 +185,6 @@ def delete_drink(id):
         print("Exception is >>", e)
         print(sys.exc_info())
         abort(422)
-
-
-
 
 
 

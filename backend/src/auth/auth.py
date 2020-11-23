@@ -53,11 +53,10 @@ def get_token_auth_header():
     if header_parts[0].lower() != 'bearer':
         raise AuthError({
         'code': 'invalid_header',
-        'description': 'Authorization header should start with Bearer'
+        'description': 'Authorization header should start with "Bearer"'
         }, 401)
 
     token = header_parts[1]
-
     return token
 
 '''
@@ -152,6 +151,7 @@ def verify_decode_jwt(token):
         'code': 'invalid_claims',
         'description': 'Unable to parse authentication token.'
         }, 400)
+
     raise AuthError({
         'code': 'invalid_header',
         'description': 'Unable to find the appropriate key.'
