@@ -56,7 +56,7 @@ def get_drinks():
 '''
 @app.route('/drinks-detail', methods=['GET'])
 @requires_auth('get:drinks-detail')
-def get_drinks_detail():
+def get_drinks_detail(payload):
     all_drinks = Drink.query.all()
     drinks = [drink.long() for drink in all_drinks] #formats (not object, but list)
     
@@ -219,6 +219,14 @@ def not_found(error):
 @TODO implement error handler for AuthError (401)
     error handler should conform to general task above 
 '''
+@app.errorhandler(403)
+def forbidden(errbr):
+    return jsonify({
+                    "success": False, 
+                    "error": 403,
+                    "message": "Access is forbidden"
+                    }), 403
+
 @app.errorhandler(401)
 def unauthorized(error):
     return jsonify({

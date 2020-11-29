@@ -171,13 +171,13 @@ def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            token = get_token_auth_header()
             try:
+                token = get_token_auth_header()
                 payload = verify_decode_jwt(token)
-            except:
-                abort(401)
-
-            check_permissions(permission, payload)
+                check_permissions(permission, payload)
+            except AuthError:
+                raise
+                #abort(401) - https://github.com/filipebezerra
             return f(payload, *args, **kwargs)
 
         return wrapper
