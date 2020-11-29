@@ -37,7 +37,7 @@ def get_token_auth_header():
     if not auth_header:
         raise AuthError({
         'code': 'missing_authorization_header',
-        'description': 'Expected authorization header'
+        'description': 'Expected Authorization header'
         }, 401)
     
     #validate authn format
@@ -81,7 +81,7 @@ def check_permissions(permission, payload):#Udac Access & Authn 4.4
     if permission not in payload['permissions']:
         raise AuthError({
             'code': 'unauthorized',
-            'description': 'Permission not found.'
+            'description': 'Permission not found in token.'
         }, 403)
 
     return True
@@ -148,9 +148,9 @@ def verify_decode_jwt(token):
 
         except jwt.JWTClaimsError:
             raise AuthError({
-        'code': 'invalid_claims',
-        'description': 'Unable to parse authentication token.'
-        }, 400)
+                'code': 'invalid_claims',
+                'description': 'Unable to parse authentication token.'
+            }, 400)
 
     raise AuthError({
         'code': 'invalid_header',
