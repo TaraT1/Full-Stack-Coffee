@@ -109,13 +109,13 @@ def verify_decode_jwt(token):
     unverified_header = jwt.get_unverified_header(token)
 
     #choose key
-    rsa_key = {}
     if 'kid' not in unverified_header:
         raise AuthError({
             'code': 'invalid_header',
             'description': 'Authorization malformed.'
         }, 401)
 
+    rsa_key = {}
     for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
@@ -136,6 +136,7 @@ def verify_decode_jwt(token):
                 algorithms = ALGORITHMS,
                 audience = API_AUDIENCE,
                 issuer='https://' + AUTH0_DOMAIN + '/'
+                #issuer=f'https://{AUTH0_DOMAIN}/' 
             )
 
             return payload
@@ -149,6 +150,12 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'invalid_claims',
+                'description': 'Unable to parse authentication token.'
+            }, 400)
+            
+        except Exception:
+            raise AuthError({
+                'code': 'invalid_header',
                 'description': 'Unable to parse authentication token.'
             }, 400)
 
@@ -171,14 +178,9 @@ def requires_auth(permission=''):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            try:
-                token = get_token_auth_header()
-                payload = verify_decode_jwt(token)
-                check_permissions(permission, payload)
-            except AuthError:
-                raise
-                #abort(401) - https://github.com/filipebezerra
+            token = get_token_auth_header()
+            payload = verify_decode_jwt(token)
+            check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
-
         return wrapper
     return requires_auth_decorator

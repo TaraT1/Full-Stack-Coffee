@@ -187,8 +187,6 @@ def delete_drink(payload, id):
         abort(422)
 
 
-
-
 ## Error Handling
 '''
 @TODO implement error handlers using the @app.errorhandler(error) decorator
