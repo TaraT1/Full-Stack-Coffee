@@ -64,7 +64,7 @@ def get_drinks_detail(payload):
         if len(drinks) == 0:
             abort(404) #resource not found
 
-        return jsonfy({
+        return jsonify({
             "success": True,
             "drinks": drinks
         }), 200
