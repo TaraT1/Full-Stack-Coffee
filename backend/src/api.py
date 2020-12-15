@@ -111,7 +111,7 @@ def add_drink(payload):
 
     except Exception as e:
         print("Exception is >>", e)
-        print(sys.exc_info())
+        #print(sys.exc_info())
         abort(422)
 
 '''
@@ -152,7 +152,7 @@ def update_drink(payload, id):
 
     except Exception as e:
         print("Exception is >>", e)
-        print(sys.exc_info())
+        #print(sys.exc_info())
         abort(422)
 
 '''

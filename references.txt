@@ -1,0 +1,42 @@
+Implementing Auth0 
+**: https://github.com/jungleBadger/udacity_coffee_shop/blob/master/troubleshooting/generate_token.md
+-thru Step 10.18.20
+ 
+https://knowledge.udacity.com/questions/255506
+
+Ionic issues
+https://knowledge.udacity.com/questions/71878
+
+https://auth0.com/docs/quickstart/backend/python/01-authorization
+
+auth0 expiration
+https://knowledge.udacity.com/questions/279879
+
+jwt seeming to not pass permissions properly. Endpoint corrs
+https://knowledge.udacity.com/questions/283399
+
+https://knowledge.udacity.com/questions/290356
+https://knowledge.udacity.com/questions/283399
+
+-Extend id token expiration under API > Settings > Token Settings
+https://knowledge.udacity.com/questions/279879
+
+patch, delete
+https://knowledge.udacity.com/questions/80259
+
+error 500 if no explicit errors address case
+Note from https://knowledge.udacity.com/questions/190269
+
+-browser returning SSL error trying to access app via https. App doesn't support protocol.
+x.callback URL: https > http Δ
+https://knowledge.udacity.com/questions/201711
+
+json dumps for recipe
+https://knowledge.udacity.com/questions/133667
+-401 post:drinks: json.dumps() converts object to str
+
+git woes with main & dev
+https://stackoverflow.com/questions/4181861/message-src-refspec-master-does-not-match-any-when-pushing-commits-in-git
+
+https://knowledge.udacity.com/questions/71878
+-https://github.com/udacity/FSND/blob/master/projects/03_coffee_shop_full_stack/starter_code/frontend/package.json
