@@ -71,7 +71,7 @@ def get_drinks_detail(payload):
 
     except Exception as e:
         print("Exception is >>", e)
-        print(sys.exc_info())
+        #print(sys.exc_info())
         abort(404)
 
 '''
@@ -146,8 +146,7 @@ def update_drink(payload, id):
 
         return jsonify({
             "success": True,
-            "drinks": [drink.long()],
-            "update": id
+            "drinks": [drink.long()]
         }), 200
 
     except Exception as e:
@@ -183,7 +182,7 @@ def delete_drink(payload, id):
 
     except Exception as e:
         print("Exception is >>", e)
-        print(sys.exc_info())
+        #print(sys.exc_info())
         abort(422)
 
 
