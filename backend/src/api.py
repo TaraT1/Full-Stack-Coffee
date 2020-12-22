@@ -30,15 +30,15 @@ CORS(app)
 @app.route('/drinks', methods=['GET'])
 def get_drinks():
     all_drinks = Drink.query.all()
-    drinks = [drink.short() for drink in all_drinks] #formats (not object, but list)
+    drinks = [drink.short() for drink in all_drinks] 
+
+    #if len(all_drinks) == 0:
+    #    abort(404) #resource not found
 
     try:
-        if len(drinks) == 0:
-            abort(404) #resource not found
-
         return jsonify({
             "success": True,
-                "drinks": drinks
+            "drinks": drinks
             }), 200
 
     except Exception as e:
@@ -58,12 +58,14 @@ def get_drinks():
 @requires_auth('get:drinks-detail')
 def get_drinks_detail(payload):
     all_drinks = Drink.query.all()
-    drinks = [drink.long() for drink in all_drinks] #formats (not object, but list)
+    drinks = [drink.long() for drink in all_drinks] 
     
-    try:
-        if len(drinks) == 0:
-            abort(404) #resource not found
+    '''
+    if len(all_drinks) == 0:
+       abort(404) #resource not found
+    '''
 
+    try:
         return jsonify({
             "success": True,
             "drinks": drinks
@@ -106,7 +108,7 @@ def add_drink(payload):
 
         return jsonify({
             "success": True,
-            "drinks": [new_drink.long()] #for drink in drinks?
+            "drinks": new_drink.long() 
         }), 200
 
     except Exception as e:
@@ -146,7 +148,7 @@ def update_drink(payload, id):
 
         return jsonify({
             "success": True,
-            "drinks": [drink.long()]
+            "drinks": drink.long()
         }), 200
 
     except Exception as e:
