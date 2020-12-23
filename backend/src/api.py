@@ -32,8 +32,8 @@ def get_drinks():
     all_drinks = Drink.query.all()
     drinks = [drink.short() for drink in all_drinks] 
 
-    #if len(all_drinks) == 0:
-    #    abort(404) #resource not found
+    if len(all_drinks) == 0:
+        abort(404) #resource not found
 
     try:
         return jsonify({
@@ -60,10 +60,8 @@ def get_drinks_detail(payload):
     all_drinks = Drink.query.all()
     drinks = [drink.long() for drink in all_drinks] 
     
-    '''
     if len(all_drinks) == 0:
        abort(404) #resource not found
-    '''
 
     try:
         return jsonify({
@@ -138,7 +136,8 @@ def update_drink(payload, id):
     
     try:
         drink.title = data.get('title')
-        drink.recipe = data.get('recipe')
+        recipe = data.get('recipe')
+        drink.recipe = json.dumps(recipe)
         drink.update()
 
         '''
@@ -148,7 +147,7 @@ def update_drink(payload, id):
 
         return jsonify({
             "success": True,
-            "drinks": drink.long()
+            "drinks": [drink.long()]
         }), 200
 
     except Exception as e:
