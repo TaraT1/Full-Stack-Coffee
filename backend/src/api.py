@@ -218,7 +218,7 @@ def not_found(error):
     error handler should conform to general task above 
 '''
 @app.errorhandler(403)
-def forbidden(errbr):
+def forbidden(error):
     return jsonify({
                     "success": False, 
                     "error": 403,
